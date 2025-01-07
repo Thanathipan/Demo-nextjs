@@ -1,31 +1,26 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-// MongoDB connection string
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGO_URI = process.env.MONGO_URI;
 
 const DBconnect = async () => {
-    const connectionState = mongoose.connection.readyState;
+  if (!MONGO_URI) {
+    throw new Error("MONGO_URI is not defined in environment variables");
+  }
 
-    if (connectionState === 1) {
-        console.log('MongoDB is already connected');
-        return;
-    }
+  if (mongoose.connection.readyState >= 1) {
+    return; // Already connected
+  }
 
-    if (connectionState === 2) {
-        console.log('MongoDB connection is currently establishing');
-        return;
-    }
-
-    try {
-        await mongoose.connect(MONGODB_URI!, {
-            dbName: 'NextJSAPI',
-            bufferCommands: true,
-        });
-        console.log('MongoDB connection established successfully');
-    } catch (error: any) {
-        console.error('MongoDB connection error:', error.message);
-        throw new Error(`MongoDB connection error: ${error.message}`);
-    }
+  try {
+    await mongoose.connect(MONGO_URI, {
+    //   useNewUrlParser: true,
+    //   useUnifiedTopology: true,
+    });
+    console.log("Connected to MongoDB");
+  } catch (error) {
+    console.error("MongoDB connection error:", error);
+    throw error;
+  }
 };
 
 export default DBconnect;
